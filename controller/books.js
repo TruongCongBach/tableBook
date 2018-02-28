@@ -6,24 +6,27 @@ let con = mysql.createConnection({
     database  : 'CRUDBook'
 });
 
-module.exports.show = function (req, res) {
-    con.query('select id, title, author, publisher, price from book where statusDel = "no"',function (err, result) {
-        res.json(result);
+exports.show = function (req, res) {
+    con.query('select id, title, author, publisher, price from book where status = "yes"',
+        function (err, result) {
+            if(err) res.status(300).send({message : 'False select'});
+            res.json(result);
     });
 };
 
-module.exports.showBook = function(req, res) {
-    con.query('select id, title, author, publisher, price from book where statusDel = "no" ', function (err, result) {
-        if (err) throw err;
-        res.json(result);
+exports.showBook = function(req, res) {
+    con.query('select id, title, author, publisher, price from book where status = "yes" ',
+        function (err, result) {
+            if(err) res.status(304).send({ message :'false query select'});
+            res.json(result);
     });
 };
 
-module.exports.seachBook = function (req, res) {
-    con.query('select id, title, author, publisher, price from book where id =? and statusDel = "no"  limit 1',
+exports.seachBook = function (req, res) {
+    con.query('select id, title, author, publisher, price from book where id =? and status = "yes"  limit 1',
         [req.params.id],
         function (err, result) {
-            if(err || result.length === 0){
+            if(result.length === 0){
                 res.status(302).send({ message :'not record'});
             } else {
                 res.json(result);
@@ -31,36 +34,39 @@ module.exports.seachBook = function (req, res) {
     });
 };
 
-module.exports.addBook = function(req, res) {
-    con.query('insert into book set ? , `statusDel`= \'no\' ', req.body, function() {
-
-        res.send('Success...!');
+exports.addBook = function(req, res) {
+    con.query('insert into book set ? , `status`= \'yes\' ', req.body,
+        function(err) {
+            if(err) res.status(304).send({ message :'false query add book'});
+            res.send('Success...!');
     });
-};
 
-module.exports.updateBook = function (req, res) {
-    con.query('Update book set ? where id = '+ req.params.id, req.body, function () {
-        res.send({message: 'update' + req.params.id +'success'});
+};
+exports.updateBook = function (req, res) {
+    con.query('Update book set ? where id = ' + req.params.id, req.body,
+        function (err) {
+            if(err) res.status(304).send({ message :'false query update'});
+            res.send({message: 'update' + req.params.id +'success'});
     });
-};
 
-module.exports.hardDel = function (req,res) {
-    con.query('Delete from book Where id ='+req.params.id , function (err) {
-        if(err) throw message('Delete HardDel');
+};
+exports.hardDel = function (req,res) {
+    con.query('Delete from book Where id =' + req.params.id , function (err) {
+        if(err) res.status(304).send({ message :'false query hard del'});
         res.send("Success....!");
     });
 };
 
-module.exports.softDel = function (req, res) {
-    con.query('update book set statusDel = "yes" where id = '+req.params.id,function (err) {
-        if(err) throw err('softDelete false');
+exports.softDel = function (req, res) {
+    con.query('update book set status = \'no\' where id = '+req.params.id,function (err) {
+        if(err) res.status(304).send({ message :'false query soft del'});
         res.send({message: 'softDelete success!'});
     });
 };
 
-module.exports.trash = function (req, res) {
-    con.query('select id, title, author, publisher, price from book where statusDel = "yes" ', function (err, result) {
-        if (err) throw err;
+exports.trash = function (req, res) {
+    con.query('select id, title, author, publisher, price from book where status = \'no\' ', function (err, result) {
+        if(err) res.status(304).send({ message :'false query show trash'});
         res.json(result);
     });
 };

@@ -10,10 +10,3 @@ exports.checkAuthor = function (req, res, next) {
     }
     next();
 };
-module.exports.checkLength = function (req, res, err, result) {
-    if(err || result.length === 0){
-        res.status(302).send({ message :'not record'});
-    } else {
-        res.json(result);
-    }
-};
